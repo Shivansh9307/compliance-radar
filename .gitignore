@@ -1,0 +1,6 @@
+.venv/
+.env
+data/
+ai/evals/reports/
+*.pbix
+__pycache__/
