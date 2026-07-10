@@ -1,17 +1,18 @@
 # Risk Flag Definitions
 
 **Author:** Shivansh
-**Version:** 0.3
+**Version:** 0.4
 **Date:** 10 July 2026
 
 These flags are applied to each company during the silver-to-gold transformation. A flag is a signal that a company may be worth a closer look. It is not a verdict on the company. Every flag traces back to a named source or rule, so a reviewer can check it by hand.
 
 ## Data sources and provenance
 
-Two sources feed these flags, and where they overlap the live source wins:
+Three sources feed these flags, and where they overlap the live source wins:
 
 - **Bulk register** (`silver.companies`, all 10,000 loaded companies). Used for company-wide coverage. Dates and overdue status here are computed from a snapshot that can be up to a month old.
-- **Live API enrichment** (`silver.company_live`, `silver.officers`, `silver.filings`, currently 50 companies). Used where available because it is current and carries authoritative fields such as the API's own `overdue` booleans, insolvency history, and officer detail.
+- **Live company enrichment** (`silver.company_live`, `silver.officers`, `silver.filings`, currently 50 companies). Used where available because it is current and carries authoritative fields such as the API's own `overdue` booleans, insolvency history, and officer detail.
+- **Officer appointment history** (`silver.officer_appointments`, `gold.director_network_risk`, currently 102 active human directors). Each director's full register-wide appointment history, used only for the director-network-risk flag.
 
 A company only gets the enrichment-based flags if it has been enriched. Companies that are loaded but not yet enriched fall back to the bulk-only flags. This split is itself recorded, so a reviewer can tell which source produced each flag.
 
@@ -26,18 +27,29 @@ A company only gets the enrichment-based flags if it has been enriched. Companie
 | **Currently dormant** | The company is presently dormant. | `company_live.company_type = 'dormant'` (current status only, see limitations) | live | Medium |
 | **Rapid officer turnover** | Three or more human directors appointed or resigned in the last 12 months. | Per company, count non-corporate officers where `appointed_effective` or `resigned_on` falls within the last 365 days; flag when the count is 3 or more. Deduplicated by `officer_id`. | live | Medium |
 | **New company in a watched sector** | Incorporated less than 12 months ago and trading in a sector on the watchlist. | `date_of_creation > (current_date - 365) AND sic_code IN watchlist` | live, bulk | Low |
-| **Director network risk** | *(pending, see note below)* | *to be finalised* | live + extra endpoint | High |
+| **Director network risk** | An active director is linked to companies that have entered involuntary insolvency. See the finalised definition below. | See "Director network risk (finalised)" | appointment history | High / Medium |
 
-### Note on the director network risk flag (status: pending)
+## Director network risk (finalised)
 
-The original definition was "a director linked to three or more dissolved or insolvent companies." Inspecting the enriched data showed this cannot be evaluated on the current 50-company sample: the largest observed link is a single director appearing at two companies, and no director reaches three. The sample simply shows too small a slice of each director's wider network.
+**Definition.** A company is flagged when one or more of its **active, human** directors is linked to companies that have entered **involuntary insolvency** (`liquidation`, `receivership`, `administration`, `insolvency-proceedings`, or `voluntary-arrangement`) anywhere across the Companies House register.
 
-Two candidate resolutions are under consideration, and this line will be finalised once one is chosen:
+- **High:** an active director linked to 10 or more insolvent companies.
+- **Medium:** an active director linked to 5 to 9 insolvent companies.
 
-- **Option B (full network):** for each active human director, call the `/officers/{officer_id}/appointments` endpoint, which returns that person's appointments across the entire register, then flag directors linked to three or more dissolved or insolvent companies. This matches the original intent and uses real register-wide data.
-- **Option C (scoped to the book):** redefine the flag as "a director holding appointments at two or more companies within our enriched set," and state plainly that the scope is limited to the book rather than the whole register.
+Each director's full appointment history is fetched from `/officers/{officer_id}/appointments` with all pages retrieved, so the count reflects the entire register, not just the enriched sample. Directors are keyed by `officer_id`, which links the same person across companies far more reliably than name matching.
 
-Whichever is chosen, the reasoning is recorded here so the change is auditable rather than silent.
+**How this was calibrated (three iterations).** The value of this flag is in how it was tuned, not just the final rule:
+
+1. **v1, naive.** "Linked to 3 or more dissolved or insolvent companies." This flagged 27 of 50 companies, about 54 percent, which is implausibly high for a risk signal.
+2. **Diagnosis.** Ranking directors by the *proportion* of their companies that failed showed that the highest raw counts belonged to insolvency professionals. One director was linked to 463 companies, 177 of them closed. A naive count mostly catches the people who *clean up* failures (liquidators, insolvency practitioners), not those who cause them.
+3. **v2, key insight.** "Dissolved" is not "failed." Most company closures are routine: a company ages out and is dissolved cleanly. Separating **involuntary insolvency** from **routine dissolution** showed the counts had been inflated roughly fivefold. One director showed 154 "adverse" companies under v1 but only 27 true insolvencies. Another showed 100 dissolved but only 3 insolvent.
+4. **v3, final.** Counting only involuntary insolvency, the flagged population fell from about 50 percent to 15 percent of directors (9 High and 6 Medium of 102), and to 7 of 33 assessable companies. A small, defensible, reviewable set.
+
+**Known limitations of this flag.**
+- `dissolved` status is retained as separate context (`dissolved_companies`), not counted as risk.
+- Insolvency links include historical directorships, so a flag reflects a director's career pattern rather than only current exposure. This is deliberate and disclosed.
+- Coverage: only companies with enrichable active human directors are assessed (33 of 50 in the current sample). The rest have no active human director on record, only corporate officers, or officers without an `officer_id`.
+- Officer histories are fully paginated, so the previous 35-per-page truncation no longer applies to this flag. Completeness is recorded per director in `bronze.officer_appointments.pages_complete`.
 
 ## AI-extracted flags
 
@@ -64,11 +76,13 @@ The dashboard sorts by score and opens on the High priority tier, so the analyst
 These are real constraints found while building, not hypothetical ones. Stating them is part of the work.
 
 - **Enrichment coverage.** Only 50 companies are currently enriched, out of 10,000 loaded, out of roughly 5 million on the register. Any flag that depends on links between companies is limited by this small sample.
+- **Dissolved is not failed.** Routine dissolution is separated from involuntary insolvency. Conflating the two inflated the network-risk flag roughly fivefold before it was corrected (see the calibration notes above).
 - **Officers are stored per appointment, not per person.** The same individual can appear more than once at a company (for example as both secretary and director). Counts of "directors" are deduplicated by `officer_id` in the gold layer to avoid overcounting.
 - **Officer identity is stable but not perfect.** `officer_id` and `person_number` link the same person across companies far more reliably than name matching, but the register is known to be imperfect and a single person can occasionally hold more than one id. This is used as a strong starting key, not treated as flawless.
 - **Pre-1992 appointments lack exact dates.** In the sample, about 32 percent of officer appointments predate 1992 and carry only `appointed_before` rather than `appointed_on`. The `appointed_effective` column falls back to this date, so time-window flags may slightly undercount activity for these older records.
-- **Officer lists can be truncated.** The API returns officers one page at a time (35 per page). Companies with more officers than one page are flagged by `officers_truncated`, and their officer-based flags may undercount until pagination is added.
+- **Company-officer lists can be truncated.** The company officers endpoint returns officers one page at a time (35 per page). Companies with more officers than one page are flagged by `officers_truncated`. Note this affects the company-officers data only; director appointment histories are fully paginated.
 - **Corporate officers are excluded.** Around 4 percent of officers are companies rather than people. They are excluded from all director-based flags.
+- **Professional directors appear in network data.** Insolvency practitioners and formation agents legitimately hold hundreds of company links. The network-risk flag counts only involuntary insolvency to reduce this effect, but any flagged director is a signal for human review, not a conclusion.
 - **Dormancy recency is not reliably available.** Current sources give present dormant status but not a dependable date of transition, so the flag detects that a company is dormant now, not that it became dormant recently.
 - **Snapshot age.** The bulk register can be up to a month old. Live facts come from the API at the time of enrichment.
 - **Flags are triage signals for human review only.** They are not a statement that a company has done anything wrong.
@@ -78,4 +92,5 @@ These are real constraints found while building, not hypothetical ones. Stating 
 | Version | Date | Change |
 | :--- | :--- | :--- |
 | 0.2 | 2 July 2026 | Initial merged definitions. |
-| 0.3 | 10 July 2026 | Rewritten after inspecting the enriched data. Added provenance, insolvency-history flag, officer deduplication and corporate exclusion, pre-1992 date handling, truncation caveat. Marked director-network flag pending pending the sample-size decision. |
+| 0.3 | 10 July 2026 | Rewritten after inspecting the enriched data. Added provenance, insolvency-history flag, officer deduplication and corporate exclusion, pre-1992 date handling, truncation caveat. Marked director-network flag pending the sample-size decision. |
+| 0.4 | 10 July 2026 | Finalised the director-network-risk flag via full paginated officer appointment history. Documented the three-iteration calibration (naive count, professional-director diagnosis, dissolved-versus-insolvent correction). Set High and Medium thresholds on true insolvency. |
