@@ -1,7 +1,7 @@
 # Risk Flag Definitions
 
 **Author:** Shivansh
-**Version:** 0.4
+**Version:** 0.5
 **Date:** 10 July 2026
 
 These flags are applied to each company during the silver-to-gold transformation. A flag is a signal that a company may be worth a closer look. It is not a verdict on the company. Every flag traces back to a named source or rule, so a reviewer can check it by hand.
@@ -86,6 +86,7 @@ These are real constraints found while building, not hypothetical ones. Stating 
 - **Dormancy recency is not reliably available.** Current sources give present dormant status but not a dependable date of transition, so the flag detects that a company is dormant now, not that it became dormant recently.
 - **Snapshot age.** The bulk register can be up to a month old. Live facts come from the API at the time of enrichment.
 - **Flags are triage signals for human review only.** They are not a statement that a company has done anything wrong.
+- **The enriched sample was drawn from the lowest company numbers**, which skew toward very old companies and over-represent overdue filers; a production run would sample randomly or by the target book.
 
 ## Changelog
 
@@ -94,3 +95,4 @@ These are real constraints found while building, not hypothetical ones. Stating 
 | 0.2 | 2 July 2026 | Initial merged definitions. |
 | 0.3 | 10 July 2026 | Rewritten after inspecting the enriched data. Added provenance, insolvency-history flag, officer deduplication and corporate exclusion, pre-1992 date handling, truncation caveat. Marked director-network flag pending the sample-size decision. |
 | 0.4 | 10 July 2026 | Finalised the director-network-risk flag via full paginated officer appointment history. Documented the three-iteration calibration (naive count, professional-director diagnosis, dissolved-versus-insolvent correction). Set High and Medium thresholds on true insolvency. |
+| 0.5 | 11 July 2026 | Added sampling-bias limitation: enriched sample drawn from lowest company numbers over-represents old, overdue companies. |
