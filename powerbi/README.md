@@ -6,7 +6,7 @@ The report is committed in the Git-friendly **`.pbip`** (Power BI Project) forma
 
 ## Page 1 — Executive Overview
 
-![Executive Overview](screenshots/overview.png)
+![Executive Overview](Screenshots/overview.png)
 
 The headline view. Four KPI cards summarise the whole register, then the breakdown and the watchlist sit below.
 
@@ -18,7 +18,7 @@ The headline view. Four KPI cards summarise the whole register, then the breakdo
 
 ## Page 2 — Director Network Risk
 
-![Director Network Risk](screenshots/director-network-risk.png)
+![Director Network Risk](Screenshots/director-network-risk.png)
 
 A drill-down into the director-network-risk flag, the analytical centrepiece of the project.
 
