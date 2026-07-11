@@ -9,3 +9,4 @@ deepeval
 scikit-learn
 pgvector
 anthropic
+beautifulsoup4
