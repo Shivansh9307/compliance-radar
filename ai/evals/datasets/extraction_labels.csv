@@ -1,0 +1,4 @@
+company_number,going_concern_true,related_party_true,auditor_resignation_true,accounts_kind_true,notes
+00063121,false,false,false,full,"Note 16 says governors' daughters paid normal fees then explicitly states NO related-party transactions in 2025 or 2024. Claude flagged RP=true = false positive (negation missed)."
+00042603,false,false,false,full,"RP evidence was routine intra-group balances (notes 12/13) = not risk-relevant. NOTE: a genuine director-level item exists (share options to directors Hogan & Dainton) that Claude did NOT cite. Flag as-fired = noise."
+00086849,true,false,false,full,"Going concern TRUE is CORRECT (true positive): accounts prepared on basis OTHER than going concern, company being liquidated, auditor emphasis-of-matter. Related_party FALSE: Claude flagged routine group balances (note 9) but formal RP note 12 takes FRS102 exemption and discloses nothing = false positive. Auditor reappointed not resigned."

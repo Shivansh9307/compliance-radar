@@ -1,12 +1,18 @@
 """
-LLM EXTRACTION: send each stored accounts PDF to Claude and extract three
-risk signals as structured JSON:
-  - going_concern       (material uncertainty about continuing to trade)
+LLM EXTRACTION (v2 - calibrated): send each stored accounts PDF to Claude and
+extract three risk signals as structured JSON:
+  - going_concern       (material uncertainty, or accounts on a non-going-concern basis)
   - auditor_resignation (auditor resigned or was removed)
-  - related_party       (significant related-party transactions)
+  - related_party       (a MATERIAL connected-party transaction, not routine group balances)
 
 Claude reads the PDF natively (no separate PDF parser needed). Results are
 stored in gold.ai_extracted_flags, ready to feed fact_risk_flag.
+
+v2 calibration (see EVALUATION.md): v1 flagged related_party in 100% of
+companies - all false positives from routine intra-group balances, and in some
+cases the note explicitly said no related-party transactions occurred. The
+prompt below hardens the related-party rule to require a material connected-party
+transaction and to respect negations / FRS 102 group exemptions.
 
 Usage:
     python ai/extract_flags.py --company 00063121   # test one first
@@ -24,8 +30,9 @@ engine = create_engine(os.environ["DATABASE_URL"])
 MODEL = "claude-haiku-4-5-20251001"   # cheap model for bulk extraction
 
 PROMPT = """You are a compliance analyst reading a UK company's filed accounts.
-Read the attached accounts PDF and determine, strictly from its text, whether
-each of the following is present. Answer only about what the document actually says.
+Read the attached accounts PDF and determine, STRICTLY from what the document
+actually says, whether each item below is present. Base every answer only on the
+document's own words. When in doubt, answer false.
 
 Return ONLY a JSON object, no other text, in exactly this shape:
 {
@@ -35,14 +42,34 @@ Return ONLY a JSON object, no other text, in exactly this shape:
   "accounts_kind": "full | dormant | micro | abridged | unknown"
 }
 
-Rules:
-- going_concern.present = true ONLY if the accounts express material uncertainty
-  about the company continuing as a going concern. A routine "prepared on a going
-  concern basis" statement is NOT material uncertainty; mark it false.
-- auditor_resignation.present = true only if the text indicates the auditor
-  resigned or was removed.
-- related_party.present = true only if significant related-party transactions are disclosed.
-- evidence must be a short phrase copied from the document, or "" if not present.
+GOING CONCERN
+- present = true ONLY if the accounts express material uncertainty about the
+  company continuing as a going concern, OR state they are prepared on a basis
+  OTHER than going concern (e.g. because the company will be liquidated or cease
+  operations), OR the auditor gives a going-concern emphasis of matter.
+- A routine "prepared on the going concern basis" statement with no caveat is
+  NOT material uncertainty. Mark it false.
+
+AUDITOR RESIGNATION
+- present = true ONLY if the text says the auditor resigned or was removed.
+- Reappointment, or willingness to be reappointed, is NOT resignation. Mark false.
+
+RELATED PARTY  (be strict - this is the hard one)
+- present = true ONLY if the accounts disclose a MATERIAL, ACTUAL transaction with
+  a connected party: a director, a director's close family, key management, or an
+  entity personally connected to a director, especially on non-commercial terms.
+- present = FALSE if the only related-party content is routine intra-group
+  balances or trading, i.e. "amounts owed to/from group undertakings", parent,
+  subsidiaries, or fellow subsidiaries. These are normal and are NOT the signal.
+- present = FALSE if the related-party note says there were NO related-party
+  transactions, or that the company has taken the FRS 102 group exemption from
+  disclosing intra-group transactions. Respect these negations even if the words
+  "related party" appear nearby.
+- evidence must quote the specific connected-party transaction. If the only thing
+  you can quote is a group balance or a "no transactions"/exemption statement,
+  then present = false and evidence = "".
+
+accounts_kind: classify the document (full / dormant / micro / abridged / unknown).
 """
 
 
