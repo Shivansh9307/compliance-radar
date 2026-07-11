@@ -1,0 +1,4 @@
+relationship AutoDetected_9e6d9c0f-b1ee-42c2-a31b-8bfccd26627b
+	fromColumn: flags_long.company_number
+	toColumn: company_risk.company_number
+

@@ -1,0 +1,182 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
+  "name": "d307bca8ba31d6c22a2d",
+  "position": {
+    "x": 9.9212598425196852,
+    "y": 109.13385826771653,
+    "z": 1000,
+    "height": 279.21259842519686,
+    "width": 856.06299212598424,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "director_risk"
+                    }
+                  },
+                  "Property": "officer_name"
+                }
+              },
+              "queryRef": "director_risk.officer_name",
+              "nativeQueryRef": "Director",
+              "displayName": "Director"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "director_risk"
+                        }
+                      },
+                      "Property": "total_companies"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(director_risk.total_companies)",
+              "nativeQueryRef": "Total Companies",
+              "displayName": "Total Companies"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "director_risk"
+                        }
+                      },
+                      "Property": "insolvent_companies"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(director_risk.insolvent_companies)",
+              "nativeQueryRef": "Insolvent Companies",
+              "displayName": "Insolvent Companies"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "director_risk"
+                        }
+                      },
+                      "Property": "dissolved_companies"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(director_risk.dissolved_companies)",
+              "nativeQueryRef": "Dissolved Companies",
+              "displayName": "Dissolved Companies"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "director_risk"
+                    }
+                  },
+                  "Property": "Clean Risk Level"
+                }
+              },
+              "queryRef": "director_risk.Clean Risk Level",
+              "nativeQueryRef": "Risk Level",
+              "displayName": "Risk Level"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Aggregation": {
+                "Expression": {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "director_risk"
+                      }
+                    },
+                    "Property": "insolvent_companies"
+                  }
+                },
+                "Function": 0
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Director Portfolio Risk Summary'"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'center'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#F3F2F1'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

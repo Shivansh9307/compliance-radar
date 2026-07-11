@@ -1,0 +1,58 @@
+table flags_long
+	lineageTag: 493d50e9-6267-42d1-9fa6-38dc19081131
+
+	column company_number
+		dataType: string
+		lineageTag: 0e500b1b-4692-45d3-b8e1-38471d5e6c3f
+		summarizeBy: none
+		sourceColumn: company_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column company_name
+		dataType: string
+		lineageTag: 094a0a96-61c6-4507-a95c-12f26b965985
+		summarizeBy: none
+		sourceColumn: company_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column risk_tier
+		dataType: string
+		lineageTag: 382b8b68-8758-465c-bb0e-03a641d6b256
+		summarizeBy: none
+		sourceColumn: risk_tier
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_name
+		dataType: string
+		lineageTag: df98b67e-3e5f-4e2b-a301-fef5bfa3801b
+		summarizeBy: none
+		sourceColumn: flag_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_severity
+		dataType: string
+		lineageTag: f4e76277-67ee-4ede-9b86-63819eb04c07
+		summarizeBy: none
+		sourceColumn: flag_severity
+
+		annotation SummarizationSetBy = Automatic
+
+	partition flags_long = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Shivansh Chauhan\Desktop\powerbi_export\flags_long.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"company_number", type text}, {"company_name", type text}, {"risk_tier", type text}, {"flag_name", type text}, {"flag_severity", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

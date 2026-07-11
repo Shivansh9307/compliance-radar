@@ -5,3 +5,6 @@ ai/evals/reports/
 *.pbix
 __pycache__/
 .DS_Store
+.pbi/
+**/.pbi/
+*/cache.abf

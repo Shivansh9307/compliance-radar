@@ -1,0 +1,229 @@
+table company_risk
+	lineageTag: 4c91f353-173a-401b-aaff-54391c7ae8df
+
+	measure 'Total Companies' = COUNTROWS(company_risk)
+		formatString: 0
+		lineageTag: 8b4a12c3-34eb-43d2-b3c7-9ad52ff0126c
+
+	measure 'High Risk' = CALCULATE(COUNTROWS(company_risk), company_risk[risk_tier] = "High")
+		formatString: 0
+		lineageTag: f8f240a3-38f7-4cc8-98be-976a5c5c981f
+
+	measure 'Medium Risk' = CALCULATE(COUNTROWS(company_risk), company_risk[risk_tier] = "Medium")
+		formatString: 0
+		lineageTag: d0bd0dd5-6208-4ac9-85ef-c13a63c894df
+
+	measure '% High Risk' = DIVIDE([High Risk], [Total Companies])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 40c25401-3a3c-4881-ac90-f4eb82af3cd2
+
+	measure 'AI-Flagged Companies' =
+			CALCULATE(
+			    COUNTROWS(company_risk),
+			    FILTER(company_risk,
+			        company_risk[flag_going_concern] = 1
+			     || company_risk[flag_auditor_resignation] = 1
+			     || company_risk[flag_related_party] = 1))
+		formatString: 0
+		lineageTag: 3d9083f7-6bf2-4742-bc65-4e048f7f0de0
+
+	column company_number
+		dataType: string
+		lineageTag: d4317154-56bd-4673-abda-efba3565be23
+		summarizeBy: none
+		sourceColumn: company_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column company_name
+		dataType: string
+		lineageTag: ca3bbe74-5cf6-4c3b-946c-c4e5a523be56
+		summarizeBy: none
+		sourceColumn: company_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column company_status
+		dataType: string
+		lineageTag: f99fb6f3-f52d-4792-bf0a-68f456092a17
+		summarizeBy: none
+		sourceColumn: company_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column company_type
+		dataType: string
+		lineageTag: cd0a27ac-0709-459f-a655-fcc774c1879f
+		summarizeBy: none
+		sourceColumn: company_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column post_town
+		dataType: string
+		lineageTag: 9ba821c4-7845-4aa1-b3d3-721446484fa1
+		summarizeBy: none
+		sourceColumn: post_town
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_of_creation
+		dataType: string
+		lineageTag: 1b7b0aa0-3b44-4558-b42b-2a778b984825
+		summarizeBy: none
+		sourceColumn: date_of_creation
+
+		annotation SummarizationSetBy = Automatic
+
+	column sic_description
+		dataType: string
+		lineageTag: e843b38e-ade7-47cb-a315-f441d7fffcd7
+		summarizeBy: none
+		sourceColumn: sic_description
+
+		annotation SummarizationSetBy = Automatic
+
+	column risk_score
+		dataType: int64
+		formatString: 0
+		lineageTag: 82476760-0d09-46aa-bd30-b0ace8705c3d
+		summarizeBy: none
+		sourceColumn: risk_score
+
+		annotation SummarizationSetBy = Automatic
+
+	column risk_tier
+		dataType: string
+		lineageTag: 6f58a2f5-1650-4286-91c4-0dc169da66c4
+		summarizeBy: none
+		sourceColumn: risk_tier
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_enriched
+		dataType: string
+		lineageTag: 3c8835e3-46fc-4b2a-b370-d6bdfe516d23
+		summarizeBy: none
+		sourceColumn: is_enriched
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_ai_extracted
+		dataType: string
+		lineageTag: 3bf8e2a8-d8eb-4cc6-a927-88a11029f415
+		summarizeBy: none
+		sourceColumn: is_ai_extracted
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_accounts_overdue
+		dataType: int64
+		formatString: 0
+		lineageTag: b7c885d1-8a95-4678-ab12-7b0320609b9e
+		summarizeBy: none
+		sourceColumn: flag_accounts_overdue
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_conf_overdue
+		dataType: int64
+		formatString: 0
+		lineageTag: cd5ad93c-b31b-4023-8a81-b6f06f373732
+		summarizeBy: none
+		sourceColumn: flag_conf_overdue
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_strike_off
+		dataType: int64
+		formatString: 0
+		lineageTag: 9971c326-42f9-4151-9ca4-5171f3c610ed
+		summarizeBy: none
+		sourceColumn: flag_strike_off
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_insolvency
+		dataType: int64
+		formatString: 0
+		lineageTag: ea458039-2d56-45ec-89b3-52eb56b44067
+		summarizeBy: none
+		sourceColumn: flag_insolvency
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_dormant
+		dataType: int64
+		formatString: 0
+		lineageTag: a7d42eaa-58a0-41d5-985e-3ff837dfda08
+		summarizeBy: none
+		sourceColumn: flag_dormant
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_officer_turnover
+		dataType: int64
+		formatString: 0
+		lineageTag: 183f4749-d2d5-4f51-a757-76b05b997b04
+		summarizeBy: none
+		sourceColumn: flag_officer_turnover
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_network_high
+		dataType: int64
+		formatString: 0
+		lineageTag: 2803bf53-e0d4-4e5d-be66-1b4fc07c7197
+		summarizeBy: none
+		sourceColumn: flag_network_high
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_network_medium
+		dataType: int64
+		formatString: 0
+		lineageTag: ed90b2f8-1456-4757-ac4b-3f42f867f6fd
+		summarizeBy: none
+		sourceColumn: flag_network_medium
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_going_concern
+		dataType: int64
+		formatString: 0
+		lineageTag: cf57ba69-323e-4fda-8edd-a951a0af6de6
+		summarizeBy: none
+		sourceColumn: flag_going_concern
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_auditor_resignation
+		dataType: int64
+		formatString: 0
+		lineageTag: cdbfe86d-5fb9-46fc-94e8-a3b42f8869af
+		summarizeBy: none
+		sourceColumn: flag_auditor_resignation
+
+		annotation SummarizationSetBy = Automatic
+
+	column flag_related_party
+		dataType: int64
+		formatString: 0
+		lineageTag: b7667782-4c1a-4a4e-bae0-f27cc86228ee
+		summarizeBy: none
+		sourceColumn: flag_related_party
+
+		annotation SummarizationSetBy = Automatic
+
+	partition company_risk = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Shivansh Chauhan\Desktop\powerbi_export\company_risk.csv"),[Delimiter=",", Columns=22, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"company_number", type text}, {"company_name", type text}, {"company_status", type text}, {"company_type", type text}, {"post_town", type text}, {"date_of_creation", type text}, {"sic_description", type text}, {"risk_score", Int64.Type}, {"risk_tier", type text}, {"is_enriched", type text}, {"is_ai_extracted", type text}, {"flag_accounts_overdue", Int64.Type}, {"flag_conf_overdue", Int64.Type}, {"flag_strike_off", Int64.Type}, {"flag_insolvency", Int64.Type}, {"flag_dormant", Int64.Type}, {"flag_officer_turnover", Int64.Type}, {"flag_network_high", Int64.Type}, {"flag_network_medium", Int64.Type}, {"flag_going_concern", Int64.Type}, {"flag_auditor_resignation", Int64.Type}, {"flag_related_party", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,72 @@
+table director_risk
+	lineageTag: abc2437a-0dee-4859-b983-b650285ecb42
+
+	column officer_name
+		dataType: string
+		lineageTag: 257186d0-edb4-4954-9abd-5ff049daa344
+		summarizeBy: none
+		sourceColumn: officer_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_companies
+		dataType: int64
+		formatString: 0
+		lineageTag: 9c567117-f66f-4449-961e-3bb5d95687ea
+		summarizeBy: sum
+		sourceColumn: total_companies
+
+		annotation SummarizationSetBy = Automatic
+
+	column insolvent_companies
+		dataType: int64
+		formatString: 0
+		lineageTag: 1fa80cc3-7693-4860-8e9f-552d707d4237
+		summarizeBy: sum
+		sourceColumn: insolvent_companies
+
+		annotation SummarizationSetBy = Automatic
+
+	column dissolved_companies
+		dataType: int64
+		formatString: 0
+		lineageTag: a11a33c9-4edc-4f87-bd03-d9025582697b
+		summarizeBy: sum
+		sourceColumn: dissolved_companies
+
+		annotation SummarizationSetBy = Automatic
+
+	column classification
+		dataType: string
+		lineageTag: d4675c3c-7ef8-48b4-8279-e65600a552e2
+		summarizeBy: none
+		sourceColumn: classification
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Clean Risk Level' =
+			
+			SWITCH(
+			    'director_risk'[classification],
+			    "network_risk_high", "High",
+			    "network_risk_medium", "Medium",
+			    "network_risk_low", "Low",
+			    "None"
+			)
+		lineageTag: d1c4405f-97a2-4205-a22c-b4a43dcfb70b
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition director_risk = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\Shivansh Chauhan\Desktop\powerbi_export\director_risk.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"officer_name", type text}, {"total_companies", Int64.Type}, {"insolvent_companies", Int64.Type}, {"dissolved_companies", Int64.Type}, {"classification", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

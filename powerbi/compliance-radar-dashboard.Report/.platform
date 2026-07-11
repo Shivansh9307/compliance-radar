@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "compliance-radar-dashboard"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "1f22e9b5-dde5-4adf-9e1e-3fcd100871b0"
+  }
+}
