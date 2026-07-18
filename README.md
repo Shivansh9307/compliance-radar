@@ -48,14 +48,14 @@ Most of the analytical value in this project is not that the flags exist, but th
 
 ### 1. Director network risk — "dissolved is not failed"
 
-A naive first version flagged directors linked to 3+ dissolved or insolvent companies. It flagged **68 of 102 directors (67%)** and **27 of 33 assessable companies (82%)** — implausibly high for a risk signal. Investigation showed two things: the highest counts belonged to insolvency professionals (one director linked to 463 companies, 177 closed), and, more importantly, most "adverse" companies were **routine dissolutions**, not failures. Counting dissolved companies as failures overstated risk roughly fivefold.
+A naive first version flagged directors linked to 3+ dissolved or insolvent companies. It flagged **68 of 102 directors (67%)** and **27 of 33 assessable companies (82%)** — implausibly high for a risk signal. Investigation showed two things: the highest counts belonged to insolvency professionals (one director linked to 463 companies, 177 closed), and, more importantly, most "adverse" companies were **routine dissolutions**, not failures — treating them as failures inflated individual directors' adverse counts several-fold (5.7x to 34x in the worst cases).
 
-The final flag counts only **involuntary insolvency** (liquidation, receivership, administration, insolvency-proceedings, voluntary-arrangement):
+Two changes were made across three versions. Adding a failure-*ratio* to the count (v1→v2) barely helped: 68 → 48 directors (1.4x). The decisive fix was **definitional** (v2→v3) — counting only **involuntary insolvency** (liquidation, receivership, administration, insolvency-proceedings, voluntary-arrangement) rather than all closures — which took it 48 → 15.
 
-| | v1 (naive) | v3 (final) |
-|---|---|---|
-| Directors flagged | 68 of 102 (**67%**) | 15 of 102 (**15%**) — 9 High, 6 Medium |
-| Companies flagged | 27 of 33 (**82%**) | 7 of 33 (**21%**) — 3 High, 4 Medium |
+| | v1 (naive) | v2 (+ratio) | v3 (final) |
+|---|---|---|---|
+| Directors flagged | 68 of 102 (**67%**) | 48 (47%) | 15 of 102 (**15%**) — 9 High, 6 Medium |
+| Companies flagged | 27 of 33 (**82%**) | — | 7 of 33 (**21%**) — 3 High, 4 Medium |
 
 A small, defensible, reviewable set. Note the denominator: 33 of the 50 enriched companies have an active human director with an `officer_id`, so 33 is the correct base for any director-derived flag. Full write-up in [`docs/risk-flags.md`](docs/risk-flags.md).
 

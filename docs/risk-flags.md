@@ -1,7 +1,7 @@
 # Risk Flag Definitions
 
 **Author:** Shivansh
-**Version:** 0.6
+**Version:** 0.7
 **Date:** 18 July 2026
 
 These flags are applied to each company during the silver-to-gold transformation. A flag is a signal that a company may be worth a closer look. It is not a verdict on the company. Every flag traces back to a named source or rule, so a reviewer can check it by hand.
@@ -42,7 +42,7 @@ Each director's full appointment history is fetched from `/officers/{officer_id}
 
 1. **v1, naive.** "Linked to 3 or more dissolved or insolvent companies." This flagged 68 of 102 directors (67 percent), carrying through to 27 of 33 assessable companies (82 percent) — implausibly high for a risk signal.
 2. **Diagnosis.** Ranking directors by the *proportion* of their companies that failed showed that the highest raw counts belonged to insolvency professionals. One director was linked to 463 companies, 177 of them closed. A naive count mostly catches the people who *clean up* failures (liquidators, insolvency practitioners), not those who cause them.
-3. **v2, key insight.** "Dissolved" is not "failed." Most company closures are routine: a company ages out and is dissolved cleanly. Separating **involuntary insolvency** from **routine dissolution** showed the counts had been inflated roughly fivefold. One director showed 154 "adverse" companies under v1 but only 27 true insolvencies. Another showed 100 dissolved but only 3 insolvent.
+3. **v2, key insight.** "Dissolved" is not "failed." Most company closures are routine: a company ages out and is dissolved cleanly. Treating dissolution as failure inflated each director's *adverse-company count* several-fold — one director showed 154 "adverse" companies but only 27 true insolvencies (5.7x), another 103 dissolved but only 3 insolvent (34x). Two changes followed. Adding a failure-ratio to the count (v1→v2) barely moved the flag rate: 68 to 48 directors (1.4x), because it still counted dissolutions as failures. The decisive change was definitional (v2→v3): counting only involuntary insolvency. Note the per-director count inflation and the flag-rate change are different quantities — the former is why the latter had leverage.
 4. **v3, final.** Counting only involuntary insolvency, flagged directors fell from 68 of 102 (67 percent) to 15 of 102 (15 percent: 9 High, 6 Medium), and flagged companies from 27 of 33 (82 percent) to 7 of 33 (21 percent: 3 High, 4 Medium). A small, defensible, reviewable set.
 
    Note the denominator: 33 of the 50 enriched companies have at least one active human director with an `officer_id`. The other 17 have only corporate officers, no active officers, or officers without an id, so they cannot be assessed by this rule. 33 is the correct base for any director-derived company figure.
@@ -99,3 +99,4 @@ These are real constraints found while building, not hypothetical ones. Stating 
 | 0.4 | 10 July 2026 | Finalised the director-network-risk flag via full paginated officer appointment history. Documented the three-iteration calibration (naive count, professional-director diagnosis, dissolved-versus-insolvent correction). Set High and Medium thresholds on true insolvency. |
 | 0.5 | 11 July 2026 | Added sampling-bias limitation: enriched sample drawn from lowest company numbers over-represents old, overdue companies. |
 | 0.6 | 18 July 2026 | Corrected calibration figures to state directors and companies separately with consistent denominators (v1: 68/102 directors, 27/33 companies; v3: 15/102, 7/33). Clarified that 33, not 50, is the assessable base for director-derived flags. |
+| 0.7 | 18 July 2026 | Corrected calibration figures: flag rate moved 68→48→15 directors (v1→v2→v3); separated per-director count inflation (5.7x–34x) from flag-rate change; attributed the 1.4x ratio step and the definitional v2→v3 step distinctly. |
