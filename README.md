@@ -48,9 +48,16 @@ Most of the analytical value in this project is not that the flags exist, but th
 
 ### 1. Director network risk — "dissolved is not failed"
 
-A naive first version flagged directors linked to 3+ dissolved or insolvent companies. It flagged **54% of the sample** — implausibly high. Investigation showed two things: the highest counts belonged to insolvency professionals (one director linked to 463 companies, 177 closed), and, more importantly, most "adverse" companies were **routine dissolutions**, not failures. Counting dissolved companies as failures overstated risk roughly fivefold.
+A naive first version flagged directors linked to 3+ dissolved or insolvent companies. It flagged **68 of 102 directors (67%)** and **27 of 33 assessable companies (82%)** — implausibly high for a risk signal. Investigation showed two things: the highest counts belonged to insolvency professionals (one director linked to 463 companies, 177 closed), and, more importantly, most "adverse" companies were **routine dissolutions**, not failures. Counting dissolved companies as failures overstated risk roughly fivefold.
 
-The final flag counts only **involuntary insolvency** (liquidation, receivership, administration, insolvency-proceedings, voluntary-arrangement). This cut the flagged population from ~54% to **15% of directors** (9 High, 6 Medium of 102) and **7 of 33 assessable companies** — a small, defensible, reviewable set. Full write-up in [`docs/risk-flags.md`](docs/risk-flags.md).
+The final flag counts only **involuntary insolvency** (liquidation, receivership, administration, insolvency-proceedings, voluntary-arrangement):
+
+| | v1 (naive) | v3 (final) |
+|---|---|---|
+| Directors flagged | 68 of 102 (**67%**) | 15 of 102 (**15%**) — 9 High, 6 Medium |
+| Companies flagged | 27 of 33 (**82%**) | 7 of 33 (**21%**) — 3 High, 4 Medium |
+
+A small, defensible, reviewable set. Note the denominator: 33 of the 50 enriched companies have an active human director with an `officer_id`, so 33 is the correct base for any director-derived flag. Full write-up in [`docs/risk-flags.md`](docs/risk-flags.md).
 
 ### 2. LLM extraction — verifying the model against the source
 
@@ -109,6 +116,6 @@ Stating these is part of the work; a risk tool that hides its blind spots is wor
 
 ## Author
 
-**[Shivansh Chauhan]** — [@Shivansh9307](https://github.com/Shivansh9307)
+**[Your Name]** — [@Shivansh9307](https://github.com/Shivansh9307)
 
 A public portfolio project. Data is from Companies House (UK), used under its open data terms. This is a demonstration of data and AI engineering practice, not a commercial compliance product.

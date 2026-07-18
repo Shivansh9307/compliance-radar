@@ -40,10 +40,12 @@ Each director's full appointment history is fetched from `/officers/{officer_id}
 
 **How this was calibrated (three iterations).** The value of this flag is in how it was tuned, not just the final rule:
 
-1. **v1, naive.** "Linked to 3 or more dissolved or insolvent companies." This flagged 27 of 50 companies, about 54 percent, which is implausibly high for a risk signal.
+1. **v1, naive.** "Linked to 3 or more dissolved or insolvent companies." This flagged 68 of 102 directors (67 percent), carrying through to 27 of 33 assessable companies (82 percent) — implausibly high for a risk signal.
 2. **Diagnosis.** Ranking directors by the *proportion* of their companies that failed showed that the highest raw counts belonged to insolvency professionals. One director was linked to 463 companies, 177 of them closed. A naive count mostly catches the people who *clean up* failures (liquidators, insolvency practitioners), not those who cause them.
 3. **v2, key insight.** "Dissolved" is not "failed." Most company closures are routine: a company ages out and is dissolved cleanly. Separating **involuntary insolvency** from **routine dissolution** showed the counts had been inflated roughly fivefold. One director showed 154 "adverse" companies under v1 but only 27 true insolvencies. Another showed 100 dissolved but only 3 insolvent.
-4. **v3, final.** Counting only involuntary insolvency, the flagged population fell from about 50 percent to 15 percent of directors (9 High and 6 Medium of 102), and to 7 of 33 assessable companies. A small, defensible, reviewable set.
+4. **v3, final.** Counting only involuntary insolvency, flagged directors fell from 68 of 102 (67 percent) to 15 of 102 (15 percent: 9 High, 6 Medium), and flagged companies from 27 of 33 (82 percent) to 7 of 33 (21 percent: 3 High, 4 Medium). A small, defensible, reviewable set.
+
+   Note the denominator: 33 of the 50 enriched companies have at least one active human director with an `officer_id`. The other 17 have only corporate officers, no active officers, or officers without an id, so they cannot be assessed by this rule. 33 is the correct base for any director-derived company figure.
 
 **Known limitations of this flag.**
 - `dissolved` status is retained as separate context (`dissolved_companies`), not counted as risk.
@@ -96,3 +98,4 @@ These are real constraints found while building, not hypothetical ones. Stating 
 | 0.3 | 10 July 2026 | Rewritten after inspecting the enriched data. Added provenance, insolvency-history flag, officer deduplication and corporate exclusion, pre-1992 date handling, truncation caveat. Marked director-network flag pending the sample-size decision. |
 | 0.4 | 10 July 2026 | Finalised the director-network-risk flag via full paginated officer appointment history. Documented the three-iteration calibration (naive count, professional-director diagnosis, dissolved-versus-insolvent correction). Set High and Medium thresholds on true insolvency. |
 | 0.5 | 11 July 2026 | Added sampling-bias limitation: enriched sample drawn from lowest company numbers over-represents old, overdue companies. |
+| 0.6 | 18 July 2026 | Corrected calibration figures to state directors and companies separately with consistent denominators (v1: 68/102 directors, 27/33 companies; v3: 15/102, 7/33). Clarified that 33, not 50, is the assessable base for director-derived flags. |
