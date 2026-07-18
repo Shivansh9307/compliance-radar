@@ -1,8 +1,8 @@
 # Risk Flag Definitions
 
 **Author:** Shivansh
-**Version:** 0.5
-**Date:** 10 July 2026
+**Version:** 0.6
+**Date:** 18 July 2026
 
 These flags are applied to each company during the silver-to-gold transformation. A flag is a signal that a company may be worth a closer look. It is not a verdict on the company. Every flag traces back to a named source or rule, so a reviewer can check it by hand.
 
