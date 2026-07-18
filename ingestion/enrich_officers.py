@@ -32,7 +32,7 @@ CH_API_KEY = os.environ["CH_API_KEY"]
 DATABASE_URL = os.environ["DATABASE_URL"]
 BASE = "https://api.company-information.service.gov.uk"
 
-DEFAULT_LIMIT = 250    # active human directors is a small set; this covers most
+DEFAULT_LIMIT = 500    # active human directors is a small set; this covers most
 PAGE_SIZE = 50         # appointments per API page (max is 50)
 PAUSE = 0.6            # seconds between API calls (stays under 600 / 5 min)
 TIMEOUT = 30
@@ -113,6 +113,11 @@ def main(limit):
             WHERE o.is_corporate = false
               AND o.is_active_officer = true
               AND o.officer_id IS NOT NULL
+             AND EXISTS (
+    SELECT 1
+    FROM bronze.sample_targets st
+    WHERE st.company_number = o.company_number
+)                  
               AND oa.officer_id IS NULL
             GROUP BY o.officer_id
             ORDER BY o.officer_id

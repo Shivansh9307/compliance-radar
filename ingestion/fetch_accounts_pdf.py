@@ -48,22 +48,29 @@ def main(limit=None, company=None):
         """))
 
     query = """
-        WITH candidates AS (
-            SELECT DISTINCT ON (e.company_number)
-                e.company_number,
-                (fil->>'date')::date               AS filing_date,
-                fil->>'description'                AS description,
-                fil->'links'->>'document_metadata' AS doc_url
-            FROM bronze.company_enrichment e,
-                 jsonb_array_elements(e.filing_history->'items') AS fil
-            WHERE fil->>'category' = 'accounts'
-              AND fil->'links'->>'document_metadata' IS NOT NULL
-            ORDER BY e.company_number, (fil->>'date')::date DESC
-        )
-        SELECT c.* FROM candidates c
-        LEFT JOIN bronze.accounts_pdfs ap ON ap.company_number = c.company_number
-        WHERE ap.company_number IS NULL
-    """
+    WITH candidates AS (
+        SELECT DISTINCT ON (e.company_number)
+            e.company_number,
+            (fil->>'date')::date               AS filing_date,
+            fil->>'description'                AS description,
+            fil->'links'->>'document_metadata' AS doc_url
+        FROM bronze.company_enrichment e,
+             jsonb_array_elements(e.filing_history->'items') AS fil
+        WHERE fil->>'category' = 'accounts'
+          AND fil->'links'->>'document_metadata' IS NOT NULL
+          AND e.company_number IN (
+                SELECT company_number
+                FROM bronze.sample_targets
+          )
+        ORDER BY e.company_number,
+                 (fil->>'date')::date DESC
+    )
+    SELECT c.*
+    FROM candidates c
+    LEFT JOIN bronze.accounts_pdfs ap
+           ON ap.company_number = c.company_number
+    WHERE ap.company_number IS NULL
+"""
     params = {}
     if company:
         query += " AND c.company_number = :company"

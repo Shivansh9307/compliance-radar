@@ -11,7 +11,7 @@ re-running it skips companies already enriched and picks up new ones.
 
 Usage:
     python ingestion/enrich_api.py                # enrich the default number
-    python ingestion/enrich_api.py --limit 500    # enrich up to 500 new companies
+    python ingestion/enrich_api.py --limit 300    # enrich up to 300 new companies
 """
 import os
 import sys
@@ -27,7 +27,7 @@ CH_API_KEY = os.environ["CH_API_KEY"]
 DATABASE_URL = os.environ["DATABASE_URL"]
 BASE = "https://api.company-information.service.gov.uk"
 
-DEFAULT_LIMIT = 50     # how many NEW companies to enrich per run
+DEFAULT_LIMIT = 300     # how many NEW companies to enrich per run
 PAUSE = 0.6            # seconds between API calls (stays under 600 / 5 min)
 TIMEOUT = 30           # seconds before giving up on a single request
 
@@ -85,6 +85,8 @@ def main(limit):
                    ON e.company_number = c.companynumber
             WHERE e.company_number IS NULL
               AND c.companynumber IS NOT NULL
+              AND c.companynumber IN (SELECT company_number 
+                                       FROM bronze.sample_targets)                   
             ORDER BY c.companynumber
             LIMIT :limit
         """), {"limit": limit}).fetchall()
