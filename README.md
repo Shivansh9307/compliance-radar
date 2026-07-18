@@ -116,6 +116,6 @@ Stating these is part of the work; a risk tool that hides its blind spots is wor
 
 ## Author
 
-**[Your Name]** — [@Shivansh9307](https://github.com/Shivansh9307)
+**[Shivansh Chauhan]** — [@Shivansh9307](https://github.com/Shivansh9307)
 
 A public portfolio project. Data is from Companies House (UK), used under its open data terms. This is a demonstration of data and AI engineering practice, not a commercial compliance product.
