@@ -83,14 +83,19 @@ Targets were set **before** the first run and are justified per surface. The hea
 
 ## 5. Results
 
-> The extraction surface has a real run against hand-labelled data (§5.1). The RAG, text-to-SQL, agent, and safety surfaces are **not yet built**, so their cells stay blank on purpose — the harness spec exists (§6) but no honest number does. Blank means "not run", never "assumed to pass".
+> The extraction surface has both a hand-labelled calibration run (§5.1) and a full-sample production run against the 300-company random sample. The RAG, text-to-SQL, agent, and safety surfaces are **not yet built**, so their cells stay blank on purpose — the harness spec exists (§6) but no honest number does. Blank means "not run", never "assumed to pass".
 
-**Extraction run metadata:** date `2026-07-11` · model `claude-haiku-4-5` (bulk extraction) · document source `Companies House Document API, PDF, read natively by the model` · dataset `extraction_labels.csv v1` (hand-labelled) · corpus `20 companies with accounts documents, 17 extracted` · run cost `< £0.20`
+**Extraction — initial calibration run:** date `2026-07-11` · model `claude-haiku-4-5` · document source `Companies House Document API, PDF, read natively by the model` · dataset `extraction_labels.csv v1` (hand-labelled, 3 companies verified) · corpus `20 companies with accounts documents, 17 extracted` · run cost `< £0.20`
+
+**Extraction — full-sample run:** date `2026-07-21` · model `claude-haiku-4-5` (calibrated prompt, unchanged from the run above) · corpus `300-company random sample; 239 of 300 have a readable accounts document and were extracted` · flag rates on the 239: going concern 6 (2.5%), auditor resignation 0, related party 22 (9.2%) · cost ≈ `£0.01/company` · results populated in `gold.fact_risk_flag` (`is_ai_extracted = true` for the 239)
 
 | Surface | Metric | Target | Result | Pass? |
 |---|---|---|---|---|
 | Extraction | Related-party precision (v1, before calibration) | ≥ 0.70 | see §5.1 — 100% flag rate, all checked cases false positive | ✗ |
 | Extraction | Related-party precision (v2, after calibration) | ≥ 0.70 | 3/3 correct on hand-verified cases; residual soft edge documented | provisional ✓ |
+| Extraction | Related-party flag rate at scale (239) | — (rate, not precision) | 22/239 = 9.2% (was ~90% pre-calibration) | rate ✓ |
+| Extraction | Going-concern flag rate at scale (239) | — | 6/239 = 2.5% | rate |
+| Extraction | Auditor-resignation flag rate at scale (239) | — | 0/239 (no positive case in sample) | rate |
 | Extraction | Going-concern correctness | — | true positive correctly caught; correct negatives on healthy accounts | ✓ (small n) |
 | Extraction | Auditor-resignation correctness | — | correct negatives on all checked cases (no positive case in sample) | untested + |
 | Extraction | Recall (per flag type, full golden set) | ≥ 0.85 | — (needs larger labelled set) | — |
@@ -107,6 +112,8 @@ Targets were set **before** the first run and are justified per surface. The hea
 | Safety | Prompt-injection resistance | ≥ 0.95 | — (not built) | — |
 | Cost | Mean £/query | report | extraction ≈ £0.01/company on Haiku | — |
 | Cost | p95 £/query | report | — | — |
+
+**Coverage.** The full-sample run extracted 239 of the 300 enriched companies. The 61 not covered are a register property, not a pipeline failure: 60 have no linked digital accounts document (46 incorporated 2024–2026 with no first accounts filed or not yet due, 5 from 2022, and 9 older companies whose filings predate linked digital documents), and 1 (`04103318`, a 2007 "legacy"-format filing) returned a document that would not extract to text.
 
 **Failure log.** Publishing the misses is the point; a reviewer trusts an eval that shows where the system broke.
 
@@ -130,9 +137,11 @@ The single most important thing this project demonstrates is not that the LLM ex
 
 4. **Calibration.** The prompt was rewritten to (a) exclude routine intra-group balances, (b) respect "no transactions" statements and FRS 102 group exemptions, and (c) require an actual material transaction with a director, family member, or connected entity. Nothing else changed, so the before/after is attributable to the prompt alone.
 
-5. **Result.** Related-party flags fell from **18/20 to 3/20**. On the three hand-verified companies, v2 matched ground truth **3 of 3** (all correctly false), and the real going-concern positive on `00086849` survived the tightening (a careless change could have suppressed it). Of the 3 companies still flagged, two are genuine connected-party transactions — a premises lease from a director-connected pension scheme (`00074028`) and a secured loan from a connected company (`00093607`) — and one is the documented residual false positive (`00128058`).
+5. **Result on the calibration set.** Related-party flags fell from **18/20 to 3/20**. On the three hand-verified companies, v2 matched ground truth **3 of 3** (all correctly false), and the real going-concern positive on `00086849` survived the tightening (a careless change could have suppressed it). Of the 3 companies still flagged, two are genuine connected-party transactions — a premises lease from a director-connected pension scheme (`00074028`) and a secured loan from a connected company (`00093607`) — and one is the documented residual false positive (`00128058`).
 
-**Honest scope of this result.** This is a small evaluation: one annotator, 20 companies, three flags, three hand-verified labels. It demonstrates the *method* — pre-registered gates, verification against source, calibration with a documented before/after, and residual errors left visible — not a production-scale accuracy figure. Recall in particular is not yet measurable, because the sample contains few true-positive cases to miss. Scaling the labelled set (§3 targets 50–100 companies) is the next step before any headline precision/recall number should be quoted.
+6. **Generalisation to the full sample.** The calibrated prompt was then run, unchanged, across the 300-company random sample. Of the **239** companies with a readable accounts document, related party fired on **22 (9.2%)**, going concern on **6 (2.5%)**, and auditor resignation on **0**. The related-party flag — the one that was broken at ~90% before calibration — held at under 10% at 239-company scale. That is the evidence the fix generalised rather than over-fitting the 20-company calibration set: a prompt change verified on 3 hand-read companies produced a sane, discriminating rate across 239 unseen ones. The honest limit stays explicit: without hand labels on the 239, 9.2% is a flag *rate*, not a measured precision — the ground truth remains the three verified companies, so this rules out the "fires on everything" failure mode but does not by itself establish precision.
+
+**Honest scope of this result.** This is still a small-labelled evaluation: one annotator, three hand-verified companies, three flags. The full-sample run demonstrates that the calibrated prompt behaves sanely at scale (239 companies), but recall and precision remain unmeasured because the sample carries few labelled true-positive cases. Scaling the labelled set (§3 targets 50–100 companies, drawn from the 239 now extracted) is the next step before any headline precision/recall number should be quoted.
 
 ---
 
@@ -415,7 +424,7 @@ Gating the merge on the eval suite is the detail that signals "I treat AI like p
 - **Hallucination is acknowledged, not assumed-away.** It is measured (§6.6) with a low ceiling and surfaced to the user as a known limitation.
 - **Untrusted input.** Filing text can contain injection payloads; resistance is part of the suite.
 - **Regulatory framing.** In scope of the EU AI Act, an automated compliance-triage aid is a decision-support tool, not an automated decision-maker — which is exactly why the human checkpoint and full audit trail (every tool call logged) exist.
-- **Single-annotator labels.** No inter-annotator agreement is available; the labelling guide is the consistency control, and this is disclosed.
+- **Single-annotator labels.** No inter-annotator agreement is available; the labelling guide is the consistency control, and this is disclosed. The full-sample extraction run (239 companies) demonstrates sane behaviour at scale but is not itself hand-labelled, so precision/recall stay unmeasured until the golden set is grown.
 - **Data freshness.** The bulk register is a monthly snapshot; "live" facts come via the API at triage time. Stale-snapshot risk is noted in any report built only from the snapshot.
 
 ---
@@ -439,3 +448,4 @@ Reports land in `ai/evals/reports/` as JSON + a rendered markdown table. Paste t
 |---|---|---|
 | 2026-06-27 | v1 | Initial spec: harness design, pre-registered gates, code skeletons, empty results template. |
 | 2026-07-11 | v1 | First real extraction run. Populated §5 with measured results and §5.1 with the related-party calibration (18/20 → 3/20 false-positive reduction, verified 3/3 against hand-labelled `extraction_labels.csv`). Logged failures F1 (calibrated) and F2 (residual, documented). RAG / text-to-SQL / agent / safety surfaces remain unbuilt and blank. |
+| 2026-07-21 | v1 | Full-sample extraction run on the 300-company random sample (239 of 300 with readable accounts extracted; 61 uncovered, reasons logged). Added §5.1 step 6: the calibrated related-party prompt generalised from ~90% pre-calibration to 9.2% at 239-company scale; going concern 2.5%, auditor resignation 0. Flag rates reported as rates, not precision — labels still limited to the 3 verified companies. Results populated in `gold.fact_risk_flag`. |
