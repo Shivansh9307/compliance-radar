@@ -197,7 +197,7 @@
                                   },
                                   "Right": {
                                     "Literal": {
-                                      "Value": "11D"
+                                      "Value": "15D"
                                     }
                                   }
                                 }
@@ -405,5 +405,93 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "57f4d0202dd83b528ba0",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "company_risk"
+              }
+            },
+            "Property": "company_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "9c85943700d0a37b2465",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "company_risk"
+              }
+            },
+            "Property": "company_status"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "a470f112000942e8858d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "company_risk"
+              }
+            },
+            "Property": "post_town"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "00136196304c41d581cc",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "company_risk"
+              }
+            },
+            "Property": "sic_description"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "faa9d67f4789690dddc2",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "company_risk"
+              }
+            },
+            "Property": "risk_score"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "22c914191c4e00b36203",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "company_risk"
+              }
+            },
+            "Property": "risk_tier"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

@@ -23,12 +23,11 @@
                       "Entity": "director_risk"
                     }
                   },
-                  "Property": "officer_name"
+                  "Property": "director"
                 }
               },
-              "queryRef": "director_risk.officer_name",
-              "nativeQueryRef": "Director",
-              "displayName": "Director"
+              "queryRef": "director_risk.director",
+              "nativeQueryRef": "director"
             },
             {
               "field": {

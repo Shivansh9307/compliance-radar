@@ -45,7 +45,7 @@ table flags_long
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\Shivansh Chauhan\Desktop\powerbi_export\flags_long.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("G:\Other computers\My Mac\powerbi_export\flags_long.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
 				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}}),
 				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
 				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"company_number", type text}, {"company_name", type text}, {"risk_tier", type text}, {"flag_name", type text}, {"flag_severity", type text}})

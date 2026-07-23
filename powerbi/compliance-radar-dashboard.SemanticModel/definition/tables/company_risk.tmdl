@@ -219,11 +219,13 @@ table company_risk
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\Shivansh Chauhan\Desktop\powerbi_export\company_risk.csv"),[Delimiter=",", Columns=22, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("G:\Other computers\My Mac\powerbi_export\company_risk.csv"),[Delimiter=",", Columns=22, Encoding=1252, QuoteStyle=QuoteStyle.None]),
 				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
 				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"company_number", type text}, {"company_name", type text}, {"company_status", type text}, {"company_type", type text}, {"post_town", type text}, {"date_of_creation", type text}, {"sic_description", type text}, {"risk_score", Int64.Type}, {"risk_tier", type text}, {"is_enriched", type text}, {"is_ai_extracted", type text}, {"flag_accounts_overdue", Int64.Type}, {"flag_conf_overdue", Int64.Type}, {"flag_strike_off", Int64.Type}, {"flag_insolvency", Int64.Type}, {"flag_dormant", Int64.Type}, {"flag_officer_turnover", Int64.Type}, {"flag_network_high", Int64.Type}, {"flag_network_medium", Int64.Type}, {"flag_going_concern", Int64.Type}, {"flag_auditor_resignation", Int64.Type}, {"flag_related_party", Int64.Type}})
 				in
 				    #"Changed Type"
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 

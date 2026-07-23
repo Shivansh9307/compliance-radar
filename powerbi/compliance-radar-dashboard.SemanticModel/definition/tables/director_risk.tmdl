@@ -1,14 +1,6 @@
 table director_risk
 	lineageTag: abc2437a-0dee-4859-b983-b650285ecb42
 
-	column officer_name
-		dataType: string
-		lineageTag: 257186d0-edb4-4954-9abd-5ff049daa344
-		summarizeBy: none
-		sourceColumn: officer_name
-
-		annotation SummarizationSetBy = Automatic
-
 	column total_companies
 		dataType: int64
 		formatString: 0
@@ -58,15 +50,25 @@ table director_risk
 
 		annotation SummarizationSetBy = Automatic
 
+	column director
+		dataType: string
+		lineageTag: 46d1d523-9c0c-4eea-8149-1d83386ebc16
+		summarizeBy: none
+		sourceColumn: director
+
+		annotation SummarizationSetBy = Automatic
+
 	partition director_risk = m
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\Shivansh Chauhan\Desktop\powerbi_export\director_risk.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("G:\Other computers\My Mac\powerbi_export\director_risk.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
 				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"officer_name", type text}, {"total_companies", Int64.Type}, {"insolvent_companies", Int64.Type}, {"dissolved_companies", Int64.Type}, {"classification", type text}})
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"total_companies", Int64.Type}, {"insolvent_companies", Int64.Type}, {"dissolved_companies", Int64.Type}})
 				in
 				    #"Changed Type"
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 
